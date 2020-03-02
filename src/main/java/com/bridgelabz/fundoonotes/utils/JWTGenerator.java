@@ -7,13 +7,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 @Component
 public class JWTGenerator {
 	public static final String SECRET="1234567890";
-	public  String jwtToken(int l)
+	public  String jwtToken(int s)
 
 	{
 		String token=null;
 		try
 		{
-			token=JWT.create().withClaim("id", l).sign(Algorithm.HMAC512(SECRET));
+			token=JWT.create().withClaim("id", s).sign(Algorithm.HMAC512(SECRET));
 		}catch(Exception e)
 		{
 			e.printStackTrace();
