@@ -1,8 +1,4 @@
 package com.bridgelabz.fundoonotes.dto;
-/**
- * @author:shiva
- */
-import java.sql.Date;
 import org.springframework.stereotype.Component;
 import lombok.Data;
 
