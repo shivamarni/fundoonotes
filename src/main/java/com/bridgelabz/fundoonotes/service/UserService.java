@@ -10,7 +10,7 @@ public interface UserService {
 	public UserDemo login(String id);
 	public UserDemo register(UserRegister userRecord);
 	public UserDemo forgotPassword(UserUpdate updateDto);
-	public List<UserDemo> getUsers();
+	public List<UserDemo> getAllUsers();
 	public void removeUsers(String id);
-	Boolean verify(String token);
+	Boolean verifyToken(String token);
 }
