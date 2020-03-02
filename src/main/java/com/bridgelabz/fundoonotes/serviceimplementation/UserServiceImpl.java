@@ -5,43 +5,47 @@ import java.util.ArrayList;
  * @author:shiva
  */
 import java.util.List;
+import java.util.Properties;
 
 import javax.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.configuration.AppConfiguration;
 import com.bridgelabz.fundoonotes.dto.UserUpdate;
-import com.bridgelabz.fundoonotes.dto.UserLogin;
 import com.bridgelabz.fundoonotes.dto.UserRegister;
 import com.bridgelabz.fundoonotes.model.UserDemo;
 import com.bridgelabz.fundoonotes.repository.UserRepository;
 import com.bridgelabz.fundoonotes.service.UserService;
 import com.bridgelabz.fundoonotes.utils.JWTGenerator;
+import com.bridgelabz.fundoonotes.utils.MailMessage;
 @Service
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
-	private AppConfiguration config;
+	private AppConfiguration configuration;
 
 	@Autowired
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private JWTGenerator generate;
+	private JWTGenerator jwtGenerate;
+
+	@Autowired
+	private JavaMailSenderImpl mailSenderImplementation;
 
 	@Transactional
 	@Override
 	public UserDemo login(String token) {
-		int id=(Integer)generate.parseJWT(token);
-		UserDemo user=userRepository.getUserById(id);
-		if(user!=null)
+		int id=(Integer)jwtGenerate.parseJWT(token);
+		UserDemo userDemo=userRepository.getUserById(id);
+		if(userDemo!=null)
 		{
-			return user;
+			return userDemo;
 		}
 		return null;
 	}
@@ -50,15 +54,20 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDemo register(UserRegister userDto) {
 		UserDemo userEmail=userRepository.getUserByEmail(userDto.getEmail());
-		if(userEmail==null)
+
+			if(userEmail==null)
+		
 		{
-			userDto.setPassword(config.passwordEncoder().encode(userDto.getPassword()));
+			userDto.setPassword(configuration.passwordEncoder().encode(userDto.getPassword()));
 			UserDemo user=(UserDemo)modelMapper.map(userDto, UserDemo.class);
 			user.setDate(new Date(System.currentTimeMillis()));
 			user.setVerified("false");
-			UserDemo result=userRepository.save(user);
-			return result;
+			UserDemo info=userRepository.save(user);
+			this.mailservice();
+			MailMessage.sendingMail(user,mailSenderImplementation,jwtGenerate.jwtToken(user.getUserId()));
+			return info;
 		}
+		
 
 		return null;
 	}
@@ -67,10 +76,12 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDemo forgotPassword(UserUpdate userDto) {
 		UserDemo userEmail=userRepository.getUserByEmail(userDto.getEmail());
-		if(userEmail!=null)
+		
+			if(userEmail!=null)
+		
 		{
 			UserDemo user=(UserDemo)modelMapper.map(userDto, UserDemo.class);
-			user.setPassword(config.passwordEncoder().encode(user.getPassword()));
+			user.setPassword(configuration.passwordEncoder().encode(user.getPassword()));
 			return userRepository.save(user);
 		}
 
@@ -79,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	@Override
-	public List<UserDemo> getUsers() {
+	public List<UserDemo> getAllUsers() {
 		List<UserDemo> ls=new ArrayList<>();
 		userRepository.findAll().forEach(ls::add);
 		return ls;
@@ -89,8 +100,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void removeUsers(String token) {
-		int id=(Integer)generate.parseJWT(token);
-		List<UserDemo> list=this.getUsers();
+		int id=(Integer)jwtGenerate.parseJWT(token);
+		List<UserDemo> list=this.getAllUsers();
 		for(UserDemo ls:list)
 		{
 			if(ls.getUserId()==id)
@@ -100,10 +111,12 @@ public class UserServiceImpl implements UserService {
 		}
 
 	}
+	@Transactional
 	@Override
-	public  Boolean verify(String token) {
+	public  Boolean verifyToken(String token) {
 
-		int id=(Integer)generate.parseJWT(token);
+		int id=(Integer)jwtGenerate.parseJWT(token);
+		System.out.println(id);
 		UserDemo user=userRepository.getUserById(id);
 		System.out.println(user.getName());
 		user.setVerified("true");
@@ -114,6 +127,20 @@ public class UserServiceImpl implements UserService {
 		}
 
 		return false;
+	}
+	public JavaMailSenderImpl mailservice()
+	{
+		mailSenderImplementation.setUsername(System.getenv("email"));
+		mailSenderImplementation.setPassword(System.getenv("password"));
+		mailSenderImplementation.setPort(587);
+		Properties properties=new Properties();
+		properties.put("mail.smtp.auth","true");
+		properties.put("mail.smtp.starttls.enable","true");
+		properties.put("mail.smtp.host","smtp.gmail.com");
+		properties.put("mail.smtp.port","587");
+		mailSenderImplementation.setJavaMailProperties(properties);
+		return mailSenderImplementation;
+
 	}
 }
 
