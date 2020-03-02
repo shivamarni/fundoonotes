@@ -1,23 +1,15 @@
 package com.bridgelabz.fundoonotes.response;
 
-public class UserDetails {
-	private String token;
+public class ListMessageResponse {
 	private String message;
 	private Object object;
-
-
-	public UserDetails(String token, String i, Object object) {
-		this.token = token;
-		this.message = i;
+	
+	public ListMessageResponse(String message, Object object) {
+	
+		this.message = message;
 		this.object = object;
 	}
-
-	public String getToken() {
-		return token;
-	}
-	public void setToken(String token) {
-		this.token = token;
-	}
+	
 	public String getMessage() {
 		return message;
 	}
@@ -30,6 +22,5 @@ public class UserDetails {
 	public void setObject(Object object) {
 		this.object = object;
 	}
-
 
 }

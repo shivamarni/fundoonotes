@@ -1,17 +1,17 @@
 package com.bridgelabz.fundoonotes.response;
 
-public class ResponseStatus {
+public class ResponseMessageStatus {
 	private String message;
 	private int statusCode;
 	private Object object;
 
-	public ResponseStatus(String message, int statusCode, Object object) {
+	public ResponseMessageStatus(String message, int statusCode, Object object) {
 		this.message = message;
 		this.statusCode = statusCode;
 		this.object = object;
 	}
 
-	public ResponseStatus(String message, int statusCode) {
+	public ResponseMessageStatus(String message, int statusCode) {
 		this.message = message;
 		this.statusCode = statusCode;
 	}
