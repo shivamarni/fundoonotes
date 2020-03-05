@@ -1,4 +1,6 @@
 package com.bridgelabz.fundoonotes.repository;
+import java.util.List;
+
 /**
  * @author:shiva
  */
@@ -17,6 +19,7 @@ public interface UserRepository extends CrudRepository<UserDemo, Integer>{
 
 	@Query(value="select * from user_demo where email=?",nativeQuery=true)
 	public UserDemo getUserByEmail(String email);
+    
 
 
 }
