@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	@Override
 	public UserDemo login(String token) {
+		System.out.println(token);
 		int id=(Integer)jwtGenerate.parseJWT(token);
 		UserDemo userDemo=userRepository.getUserById(id);
 		if(userDemo!=null)
@@ -54,16 +55,19 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDemo register(UserRegister userDto) {
 		UserDemo userEmail=userRepository.getUserByEmail(userDto.getEmail());
-
+		System.out.println("---------------------"+userEmail);
 			if(userEmail==null)
 		
 		{
 			userDto.setPassword(configuration.passwordEncoder().encode(userDto.getPassword()));
+			
 			UserDemo user=(UserDemo)modelMapper.map(userDto, UserDemo.class);
+			System.out.println(user);
 			user.setDate(new Date(System.currentTimeMillis()));
 			user.setVerified("false");
 			UserDemo info=userRepository.save(user);
 			this.mailservice();
+			System.out.println(jwtGenerate.jwtToken(user.getUserId()));
 			MailMessage.sendingMail(user,mailSenderImplementation,jwtGenerate.jwtToken(user.getUserId()));
 			return info;
 		}
