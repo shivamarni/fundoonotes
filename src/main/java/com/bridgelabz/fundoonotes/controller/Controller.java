@@ -37,6 +37,7 @@ public class Controller {
 		if(result!=null)
 		{
 			String token=jwtGenerator.jwtToken(result.getUserId());
+			System.out.println(token);
 			return ResponseEntity.status(HttpStatus.ACCEPTED).header("login successful",result.getName())
 					.body(new UserInfo(token,"200 ok",result));
 		}
@@ -44,9 +45,11 @@ public class Controller {
 
 	}
 	@PostMapping(value="/register")
-	public ResponseEntity<ResponseMessageStatus>register(@RequestBody UserRegister userRecord)
+	public ResponseEntity<ResponseMessageStatus> register(@RequestBody UserRegister userRecord)
 	{
+		System.out.println("UserRecord---------"+userRecord);
 		UserDemo user=userService.register(userRecord);
+		System.out.println("user------"+user);
 		if(user!=null)
 		{
 			return ResponseEntity.status(HttpStatus.CREATED)
@@ -89,10 +92,10 @@ public class Controller {
 	{
 		return userService.getAllUsers();
 	}
-	@DeleteMapping(value="/delete/{id}")
-	public void deleteUser(@PathVariable String id)
-	{
-		userService.removeUsers(id);
-	}
+//	@DeleteMapping(value="/delete/{id}")
+//	public void deleteUser(@PathVariable String id)
+//	{
+//		userService.removeUsers(id);
+//	}
 
 }
