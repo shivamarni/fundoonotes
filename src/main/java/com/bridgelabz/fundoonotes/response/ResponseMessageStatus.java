@@ -1,41 +1,20 @@
 package com.bridgelabz.fundoonotes.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class ResponseMessageStatus {
 	private String message;
 	private int statusCode;
-	private Object object;
+	private Object user;
 
-	public ResponseMessageStatus(String message, int statusCode, Object object) {
-		this.message = message;
-		this.statusCode = statusCode;
-		this.object = object;
-	}
-
-	public ResponseMessageStatus(String message, int statusCode) {
-		this.message = message;
-		this.statusCode = statusCode;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	public int getStatusCode() {
-		return statusCode;
-	}
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
-	}
-	public Object getObject() {
-		return object;
-	}
-	public void setObject(Object object) {
-		this.object = object;
-	}
-
-
+	
 
 
 }

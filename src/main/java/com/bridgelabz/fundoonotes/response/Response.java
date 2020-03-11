@@ -4,17 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class UserInfo {
-	private String token;
+public class Response {
 	private String message;
-	private Object object;
-
-
-	
+	private int statusCode;
 
 }
