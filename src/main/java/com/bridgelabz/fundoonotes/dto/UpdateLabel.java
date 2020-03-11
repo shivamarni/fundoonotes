@@ -9,10 +9,14 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class UserUpdate {
+public class UpdateLabel {
 	
-	private String email;
-	private String newpassword;
-
+	private long labelId;
+	private String name;
+	
+	
+	
+	
+	
 
 }

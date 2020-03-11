@@ -1,20 +1,16 @@
 package com.bridgelabz.fundoonotes.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class UpdateNote {
 	private String title;
 
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String toString() {
-		return "UpdateNote [title=" + title + "]";
-	}
 	
-
 }
