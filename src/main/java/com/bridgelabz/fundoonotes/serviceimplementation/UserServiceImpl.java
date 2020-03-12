@@ -30,116 +30,115 @@ import com.bridgelabz.fundoonotes.service.UserService;
 import com.bridgelabz.fundoonotes.utils.JWTGenerator;
 import com.bridgelabz.fundoonotes.utils.MailMessage;
 @Service
-@PropertySource("classpath:Message.properties")
+@PropertySource("classpath:message.properties")
 public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
-	private PasswordEncoder passwordEncode;;
-	@Autowired
-	private ModelMapper modelMapper;
+	private PasswordEncoder passwordEncode;
+	
 	@Autowired
 	private Environment env;
 	@Autowired
 	private JavaMailSenderImpl senderimp;
 	@Autowired
 	private JWTGenerator jwtGenerate;
-	
-    @Transactional
+
+	@Transactional
 	@Override
-	public UserDemo login(UserLogin userDto) {
-		Optional<UserDemo> user = userRepository.getUserByEmail(userDto.getEmail());
-				
-		if(user!=null) {
+	public String login(UserLogin userDto) {
+
 		UserDemo userDetails = new UserDemo();
-		
-		BeanUtils.copyProperties(userDto, userDetails);
-		
-		System.out.println("----::"+passwordEncode.matches(userDetails.getPassword(), userDto.getPassword()));
-		System.out.println("user:"+userDetails.getPassword());
-		System.out.println("dto pass:"+userDto.getPassword());
-		if (!(passwordEncode.matches(userDetails.getPassword(), userDto.getPassword()))) {
-			
-			return userDetails;
+
+
+		UserDemo user = userRepository.findUserByEmail(userDto.getEmail())
+				.orElseThrow(() -> new UserException(HttpStatus.BAD_GATEWAY, env.getProperty("103")));
+
+		try {
+			BeanUtils.copyProperties(userDto, userDetails);
+			if ((user.isVerified() == true) && passwordEncode.matches(userDto.getPassword(), user.getPassword())) {
+
+				String token = jwtGenerate.jwtToken(user.getUserId());
+				this.mailservice();
+				MailMessage.sendingMail(userDetails, senderimp, token);
+				return token;
+			}else {
+				throw new UserException(HttpStatus.BAD_REQUEST,env.getProperty("105"));
+			}
+
+		} catch (Exception ex) {
+			throw new UserException(HttpStatus.INTERNAL_SERVER_ERROR,env.getProperty("500"));
 		}
-		}
-		throw new UserException(HttpStatus.BAD_GATEWAY, env.getProperty("400"));
 	}
-	
-    @Transactional
+
+	@Transactional
 	@Override
 	public UserDemo register(UserRegister userDto) {
-		Optional<UserDemo> useremail = userRepository.getUserByEmail(userDto.getEmail());
-		System.out.println(useremail);
-		if (useremail!=null)
-			
-		try {
-			
 
-			UserDemo user = new UserDemo();
-			BeanUtils.copyProperties(userDto, user);
+		UserDemo userDetails = new UserDemo();
+		
+			Optional<UserDemo> useremail = userRepository.findUserByEmail(userDto.getEmail());
+			
+			if (useremail.isPresent())
+				throw new UserException(HttpStatus.ALREADY_REPORTED,env.getProperty("102"));
+
+			try {
+		BeanUtils.copyProperties(userDto, userDetails);
 
 		
-			user.setPassword(passwordEncode.encode(userDto.getPassword()));
-			user.setDate(LocalDateTime.now());
-			user.setVerified(false);
-			UserDemo result = userRepository.save(user);
-
-			
-
-			this.mailservice();
-			MailMessage.sendingMail(user, senderimp, jwtGenerate.jwtToken(user.getUserId()));
-
-			return result;
-
-		} catch (Exception ae) {
-			throw new UserException(HttpStatus.INTERNAL_SERVER_ERROR, env.getProperty("500"));
-		}
-		return null;
-	}
-    @Transactional
-	@Override
-	public UserDemo forgotPassword(UserUpdate updateDto) {
-    	try
-    	{
-    		Optional<UserDemo> user=userRepository.getUserByEmail(updateDto.getEmail());
-    		//System.out.println("email:"+user.getEmail());
-    		UserDemo userInfo=modelMapper.map(updateDto,UserDemo.class);
-    		userInfo.setPassword(passwordEncode.encode(userInfo.getPassword()));
-    		return userRepository.save(userInfo);
-    	}catch(Exception e)
-    	{
-    		throw new UserException(HttpStatus.BAD_GATEWAY,env.getProperty("502"));
-    	}
-    }
-		
-		
+		userDetails.setPassword(passwordEncode.encode(userDto.getPassword()));
+		userDetails.setDate(LocalDateTime.now());
+		UserDemo result = userRepository.save(userDetails);
 
 	
-    @Transactional
+
+		this.mailservice();
+		MailMessage.sendingMail(userDetails, senderimp, jwtGenerate.jwtToken(userDetails.getUserId()));
+
+		return result;
+
+		} catch (Exception ae) {
+			ae.printStackTrace();
+			throw new UserException(HttpStatus.INTERNAL_SERVER_ERROR, env.getProperty("500"));
+		}
+	}
+
+	@Transactional
+	@Override
+	public UserDemo forgotPassword(String newpassword,String token) {
+		long id = (Long) jwtGenerate.parseJWT(token);
+		UserDemo user = userRepository.getUserById(id)
+				.orElseThrow(() -> new UserException(HttpStatus.BAD_GATEWAY, env.getProperty("104")));
+		user.setPassword( passwordEncode.encode(newpassword));
+		return userRepository.save(user);
+	}
+
+
+
+
+	@Transactional
 	@Override
 	public List<UserDemo> getAllUsers() {
-		
+
 		List<UserDemo> ls = new ArrayList<>();
 		userRepository.findAll().forEach(ls::add);
 		return ls;
 	}
 
-    @Transactional
+	@Transactional
 	@Override
 	public Boolean verifyToken(String token) {
 
-		int id = (Integer) jwtGenerate.parseJWT(token);
-		UserDemo user = userRepository.getUserById(id);
-		System.out.println(user.getName());
+		long id = (Long)jwtGenerate.parseJWT(token);
+		UserDemo user = userRepository.getUserById(id)
+				.orElseThrow(() -> new UserException(HttpStatus.BAD_GATEWAY,env.getProperty("104")));
+
 		user.setVerified(true);
-		UserDemo users = userRepository.save(user);
-		if (users != null) {
-			return true;
-		}
-		return false;
+		boolean users = userRepository.save(user) != null ? true : false;
+
+		return users;
 	}
-	
+
 	public JavaMailSenderImpl mailservice() {
 		senderimp.setUsername(System.getenv("email"));
 		senderimp.setPassword(System.getenv("password"));
@@ -151,6 +150,26 @@ public class UserServiceImpl implements UserService {
 		prop.put("mail.smtp.port", "587");
 		senderimp.setJavaMailProperties(prop);
 		return senderimp;
+	}
+
+	@Override
+	public String emailVerify(String email) {
+		UserDemo user = userRepository.findUserByEmail(email)
+				.orElseThrow(() -> new UserException(HttpStatus.BAD_GATEWAY,env.getProperty("104")));
+		
+		String token = jwtGenerate.jwtToken(user.getUserId());
+		this.mailservice();
+		MailMessage.sendingMail(user, senderimp,token);
+		return token;
+	}
+
+	@Override
+	public UserDemo getUser(String token) {
+		long id = (Long) jwtGenerate.parseJWT(token);
+		UserDemo user = userRepository.getUserById(id)
+				.orElseThrow(() -> new UserException(HttpStatus.BAD_GATEWAY, env.getProperty("104")));
+
+		return user;
 	}
 }
 

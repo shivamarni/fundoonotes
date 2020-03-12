@@ -34,7 +34,7 @@ public class UserCollabratorImplementation implements UserCollabrator {
 	
 	public List<NoteInformation> addCollabrator(long noteId, String token,String email) {
 
-		Optional<UserDemo> collabrator = userRepository.getUserByEmail(email);
+		Optional<UserDemo> collabrator = userRepository.findUserByEmail(email);
 
 		if (collabrator.isPresent()) {
 			try {
@@ -46,7 +46,7 @@ public class UserCollabratorImplementation implements UserCollabrator {
 					NoteInformation data = note.stream().filter(t -> t.getNoteId() == noteId).findFirst()
 							.orElseThrow(() -> new LabelException(HttpStatus.BAD_REQUEST, "NoteId not Exist"));
 
-					collabrator.ifPresent(t -> t.getCollabrator().add(data));
+					collabrator.ifPresent(t -> t.getCollabrate().add(data));
 
 					System.out.println("da::" + data);
 
@@ -63,20 +63,22 @@ public class UserCollabratorImplementation implements UserCollabrator {
 
 	@Transactional
 	@Override
-	public List<UserDemo> getAllCollabrators(String token) {
+	public List<NoteInformation> getAllCollabrators(String token) {
+		UserDemo user1=new UserDemo();
 		long id = (long) jwtGenerate.parseJWT(token);
-		List<UserDemo> user = userRepository.getCollobaraterById(id);
-
-		if (user == null) {
-			throw new UserException(HttpStatus.BAD_GATEWAY, "user not exist");
-		}
+		List<NoteInformation> user = user1.getCollabrate();
 		return user;
+
+//		if (user != null) {
+//			return user;
+//		}
+//		throw new UserException(HttpStatus.BAD_GATEWAY, "user not exist");
 	}
 
 	@Transactional
 	@Override
 	public NoteInformation deleteCollabrator(long noteId, String token,String email) {
-		Optional<UserDemo> collabrator = userRepository.getUserByEmail(email);
+		Optional<UserDemo> collabrator = userRepository.findUserByEmail(email);
 		// User user=null;
 		if (collabrator.isPresent()) {
 			try {
