@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
@@ -47,9 +49,12 @@ public class NoteInformation {
 	
 //	@ManyToOne
 //	UserDemo user;
-
+//
+//	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.PERSIST)
+//	UserLabel userLabel;
+	@JoinTable(name="note_labels",joinColumns = {@JoinColumn(name="lableId")},inverseJoinColumns = {@JoinColumn(name="noteId")})
 	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.PERSIST)
-	UserLabel userLabel;
+	private List<UserLabel> label;
 
 	
 

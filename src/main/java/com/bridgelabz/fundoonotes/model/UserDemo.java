@@ -17,6 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -45,23 +47,24 @@ public class UserDemo {
 	private LocalDateTime date;
 	
 	
-	@OneToMany(cascade =CascadeType.ALL,targetEntity = NoteInformation.class,fetch=FetchType.LAZY)
+	@OneToMany(targetEntity = NoteInformation.class)
 	@JoinColumn(name="userId")
 	private List<NoteInformation> notes;
 	
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	public List<NoteInformation> collabrate;
 	
-	@OneToMany(cascade =CascadeType.ALL,targetEntity = UserLabel.class,fetch=FetchType.LAZY)
+	@OneToMany(targetEntity = UserLabel.class)
 	@JoinColumn(name="userId")
 	public List<UserLabel> label;
 	
-		
-
-	public List<NoteInformation> getCollabrator() {
-		
-		return collabrate;
-	}
+//		
+//    @ManyToMany
+//    @JsonIgnore
+//	public List<NoteInformation> getCollabrator() {
+//		
+//		return collabrate;
+//	}
 	 
 
 
