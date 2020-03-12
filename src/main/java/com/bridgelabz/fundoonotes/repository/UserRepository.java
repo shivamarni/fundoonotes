@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import com.bridgelabz.fundoonotes.model.NoteInformation;
 import com.bridgelabz.fundoonotes.model.UserDemo;
 
 @Repository
@@ -16,10 +18,10 @@ public interface UserRepository extends CrudRepository<UserDemo, Long>{
 	public String login();
 
 	@Query(value="select * from user_demo where user_id=?",nativeQuery=true)
-	public UserDemo getUserById(long id);
+	public Optional<UserDemo> getUserById(long id);
 
 	@Query(value="select * from user_demo where email=?",nativeQuery=true)
-	public Optional<UserDemo> getUserByEmail(String email);
+	public Optional<UserDemo> findUserByEmail(String email);
     
 	@Query(value = "update user_demo set password=? where email=?", nativeQuery = true)
 	UserDemo forgotPassword(String password, String email);
@@ -33,5 +35,10 @@ public interface UserRepository extends CrudRepository<UserDemo, Long>{
 	@Query(value="select * from user_demo_collabrate where user_id=?",nativeQuery=true)
 	public List<UserDemo> getCollobaraterById(long id);
 	
+	@Query(value = "select * from user_demo  where user_id=?" , nativeQuery = true)
+	List<NoteInformation> findNotesByuserId(long userId);
+
+	@Query(value = "select * from note_information where user_id=?", nativeQuery = true)
+	List<NoteInformation> findNoteByUserId(int id);
 }
 
