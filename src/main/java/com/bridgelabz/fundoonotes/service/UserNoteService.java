@@ -1,7 +1,9 @@
 package com.bridgelabz.fundoonotes.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.bridgelabz.fundoonotes.dto.ReminderDto;
 import com.bridgelabz.fundoonotes.dto.UpdateNote;
 import com.bridgelabz.fundoonotes.dto.UserNote;
 import com.bridgelabz.fundoonotes.model.NoteInformation;
@@ -19,11 +21,14 @@ public interface UserNoteService {
 	List<NoteInformation> getNoteByUserId(long id);
 
 	NoteInformation removeNotes(String token, long id);
+	
+	ArrayList<String> sortByName();
 
+	List<String> ascSortByName();
 
-	String archieveNote(long id, String token);
+	NoteInformation archieveNote(long id, String token);
 
-	String pinNote(long id, String token);
+	NoteInformation pinNote(long id, String token);
 
 	List<NoteInformation> getAlltrashednotes(String token);
 
@@ -33,7 +38,7 @@ public interface UserNoteService {
 
 	List<NoteInformation> getAllPinneded(String token);
 
-	//String addReminder(String id, String token, ReminderDto reminder);
+	String addReminder(long id, String token, ReminderDto reminder);
 
 	String removeReminder(long id, String token);
 	

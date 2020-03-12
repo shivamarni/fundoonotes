@@ -10,10 +10,15 @@ import com.bridgelabz.fundoonotes.model.UserDemo;
 
 public interface UserService {
 
-	public UserDemo login(UserLogin userDto);
+	public String login(UserLogin userDto);
 	public UserDemo register(UserRegister userRecord);
-	public UserDemo forgotPassword(UserUpdate updateDto);
+	public UserDemo forgotPassword(String newpassword,String token);
 	public List<UserDemo> getAllUsers();
-	//public UserDemo removeUsers(String id);
+	
 	Boolean verifyToken(String token);
+
+	String emailVerify(String email);
+
+	UserDemo getUser(String token);	
+
 }

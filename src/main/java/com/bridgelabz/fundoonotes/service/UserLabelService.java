@@ -1,9 +1,11 @@
 package com.bridgelabz.fundoonotes.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.bridgelabz.fundoonotes.dto.UpdateLabel;
 import com.bridgelabz.fundoonotes.dto.UserLabelDto;
+import com.bridgelabz.fundoonotes.dto.UserNote;
 import com.bridgelabz.fundoonotes.model.UserLabel;
 
 public interface UserLabelService {
@@ -22,7 +24,15 @@ public interface UserLabelService {
 
 	UserLabel updateLabel(long id, String token, UpdateLabel LabelDto);
 
-	UserLabel addNotesToLabel(long labelId, long noteId, String token);
+	UserLabel addNotesToLabel(UserNote notes,String token,long labelId);
+	
+	ArrayList<String> sortByName();
+	
+	List<String> ascsortByName();
+	
+	boolean addExistingNotesToLabel(String noteTitle, String token, String labelName);
+	
+	boolean addExistingNotesToLabel(long noteId, String token, long labelId);
 }
 
 

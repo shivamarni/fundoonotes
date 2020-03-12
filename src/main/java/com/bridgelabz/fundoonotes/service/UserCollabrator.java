@@ -9,7 +9,7 @@ import com.bridgelabz.fundoonotes.model.UserDemo;
 public interface UserCollabrator {
 	List<NoteInformation> addCollabrator(long noteId, String token,String email);
 	
-	List<UserDemo> getAllCollabrators(String token);
+	List<NoteInformation> getAllCollabrators(String token);
 	
 	NoteInformation deleteCollabrator(long noteId, String token,String email);
 
