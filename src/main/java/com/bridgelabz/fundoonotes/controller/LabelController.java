@@ -3,6 +3,8 @@ package com.bridgelabz.fundoonotes.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,20 +13,28 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundoonotes.dto.UpdateLabel;
 import com.bridgelabz.fundoonotes.dto.UserLabelDto;
+import com.bridgelabz.fundoonotes.dto.UserNote;
 import com.bridgelabz.fundoonotes.model.UserLabel;
 import com.bridgelabz.fundoonotes.response.LabelResponse;
 import com.bridgelabz.fundoonotes.response.NoteResponse;
+import com.bridgelabz.fundoonotes.response.Response;
 import com.bridgelabz.fundoonotes.service.UserLabelService;
 
 @RestController
+@RequestMapping("/labels")
+@PropertySource("classpath:message.properties")
 public class LabelController {
 
 	@Autowired
 	UserLabelService labelService;
+	
+	@Autowired
+	private Environment env;
 
 	@PostMapping(value = "/label/{token}/notes")
 	public ResponseEntity<LabelResponse> createLabel(@RequestBody UserLabelDto label, @PathVariable String token) {
@@ -61,8 +71,26 @@ public class LabelController {
 		return ResponseEntity.status(HttpStatus.ALREADY_REPORTED)
 				.body(new LabelResponse("Already Deleted user", 400, result));
 	}
+	@PostMapping(value = "/{lid}/{token}/{noteId}")
+	public ResponseEntity<Response> addExistingNotesToLabel(long noteId, String token, long labelId) {
+		boolean label = labelService.addExistingNotesToLabel(noteId, token, labelId);
+		if(label)
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(new Response(env.getProperty("301"),200));
+		return null;
 
+	}
 
+	@PostMapping(value = "/{lid}/{token}")
+	public ResponseEntity<LabelResponse> addNotesToLabel(@RequestBody UserNote label, @PathVariable String token,@PathVariable long lid) {
+
+		UserLabel lnote = labelService.addNotesToLabel(label, token,lid);
+		
+		 return ResponseEntity.status(HttpStatus.CREATED)
+					.body(new LabelResponse(env.getProperty("301"),200,lnote));
+	
+
+	}
 	@GetMapping(value = "/label/notes/{id}")
 	public ResponseEntity<LabelResponse> getLabel(@PathVariable long id) {
 		UserLabel result = labelService.getLableById(id);
@@ -73,18 +101,8 @@ public class LabelController {
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new LabelResponse("Label not existing", 400, result));
 	}
-    @GetMapping(value=("lableMapWithNotes/{lableId}/{noteId}/{token}"))
-	public ResponseEntity<LabelResponse> addNotesToLabel(@PathVariable("lableId")long lableId,@PathVariable long noteId,@PathVariable String token){
-		UserLabel label=labelService.addNotesToLabel(lableId, noteId, token);
-		if(label!=null)
-		{
-			return ResponseEntity.status(HttpStatus.CREATED).body(new LabelResponse("Note details saved successfully", 200, label));
-		}
-    	
-    	return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(new LabelResponse("not exist",400,label));
-		
-
-	}
+	
+	
 
 
 	@GetMapping("/label/notes")
