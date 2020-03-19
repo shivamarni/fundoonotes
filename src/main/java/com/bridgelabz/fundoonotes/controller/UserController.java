@@ -29,7 +29,7 @@ import com.bridgelabz.fundoonotes.dto.UserRegister;
 import com.bridgelabz.fundoonotes.model.UserDemo;
 import com.bridgelabz.fundoonotes.response.ResponseMessageStatus;
 import com.bridgelabz.fundoonotes.response.UserInfo;
-import com.bridgelabz.fundoonotes.service.AmazonClientService;
+import com.bridgelabz.fundoonotes.service.AmazonS3ClientService;
 import com.bridgelabz.fundoonotes.service.UserService;
 
 @RestController
@@ -44,7 +44,7 @@ public class UserController {
 	private Environment env;
 
 	@Autowired
-    private AmazonClientService amazonClientService;
+    private AmazonS3ClientService amazonS3ClientService;
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<UserInfo> loginUser(@Valid @RequestBody UserLogin user, BindingResult result) {
@@ -112,7 +112,7 @@ public class UserController {
 	@PostMapping(value="/uploadProfile")
     public Map<String, String> uploadProfile(@RequestPart(value = "file") MultipartFile file,@RequestPart("token") String token)
     {
-        this.amazonClientService.uploadFileToS3Bucket(file, true,token);
+        this.amazonS3ClientService.uploadFileToS3Bucket(file, true,token);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "file [" + file.getOriginalFilename() + "] uploading request submitted successfully.");
@@ -123,7 +123,7 @@ public class UserController {
     @DeleteMapping(value="/deleteProfile")
     public Map<String, String> deleteProfile(@RequestParam("file_name") String fileName,@RequestPart("token") String token)
     {
-        this.amazonClientService.deleteFileFromS3Bucket(fileName,token);
+        this.amazonS3ClientService.deleteFileFromS3Bucket(fileName,token);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "file [" + fileName + "] removing request submitted successfully.");
