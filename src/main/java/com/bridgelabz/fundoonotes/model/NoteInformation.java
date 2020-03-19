@@ -52,8 +52,8 @@ public class NoteInformation {
 //
 //	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.PERSIST)
 //	UserLabel userLabel;
-	@JoinTable(name="note_labels",joinColumns = {@JoinColumn(name="lableId")},inverseJoinColumns = {@JoinColumn(name="noteId")})
-	@ManyToMany(fetch=FetchType.EAGER,cascade = CascadeType.PERSIST)
+	//@JoinTable(name="note_labels",joinColumns = {@JoinColumn(name="lableId")},inverseJoinColumns = {@JoinColumn(name="noteId")})
+	@ManyToMany(cascade = CascadeType.ALL)
 	private List<UserLabel> label;
 
 	
